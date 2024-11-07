@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess AI Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #game-container {
+            text-align: center;
+        }
+        #board {
+            width: 400px;
+            margin: 20px auto;
+        }
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        #play-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Chess AI Game</h1>
+        <div id="board"></div>
+        <div id="status">Press "Play Game" to start</div>
+        <button id="play-button">Play Game</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function updateStatus(status) {
+            $('#status').html(status);
+        }
+
+        async function playGame() {
+            $('#play-button').prop('disabled', true);
+            updateStatus('Game starting...');
+
+            try {
+                const response = await fetch('/play');
+                const html = await response.text();
+                
+                // Create a temporary div to parse the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+
+                // Extract and display each move
+                const moves = tempDiv.querySelectorAll('h2, img, p');
+                for (let i = 0; i < moves.length; i++) {
+                    const element = moves[i];
+                    if (element.tagName === 'H2') {
+                        updateStatus(element.textContent);
+                    } else if (element.tagName === 'IMG') {
+                        $('#board').html(element.outerHTML);
+                    } else if (element.tagName === 'P') {
+                        $('#status').append('<br>' + element.textContent);
+                    }
+
+                    // Pause between moves
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+
+                // Display final result
+                const result = tempDiv.querySelector('h2:last-child').textContent;
+                updateStatus(result);
+            } catch (error) {
+                console.error('Error:', error);
+                updateStatus('The game has stopped');
+            }
+
+            $('#play-button').prop('disabled', false);
+        }
+
+        $(document).ready(function() {
+            $('#play-button').on('click', playGame);
+        });
+    </script>
+</body>
+</html>
