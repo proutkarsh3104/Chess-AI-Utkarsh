@@ -59,5 +59,8 @@ Contributions are welcome! Please fork this repository, make your changes, and o
 4. Push to the branch (`git push origin feature/NewFeature`)
 5. Open a pull request
 
+## Video
+[![Watch the video]](https://www.youtube.com/watch?v=4rCN0P21dyU)
+
 ## License
 This project is licensed under the MIT License.
